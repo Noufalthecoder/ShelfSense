@@ -269,7 +269,6 @@ docs/                README images
 
 - **YouCam API by Perfect Corp.** for AI Skin Analysis and Makeup Virtual Try-On.
 - [Open Beauty Facts](https://world.openbeautyfacts.org/) for product and ingredient data (ODbL).
-- The sample face in the YouCam demo images is from the open-source [skinmatch](https://github.com/kimdooo-a/skinmatch) project (MIT).
 - Typefaces: [Instrument Serif](https://fonts.google.com/specimen/Instrument+Serif) and [Inter](https://fonts.google.com/specimen/Inter) (SIL OFL).
 
 <p align="center">
