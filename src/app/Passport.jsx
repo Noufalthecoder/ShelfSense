@@ -2,6 +2,7 @@ import { useState } from 'react';
 import SelfieCapture from './SelfieCapture.jsx';
 import { analyzeSkin } from './api.js';
 import { CONCERNS, LEVEL_LABEL, level, rankConcerns } from './concerns.js';
+import { recommendFor, skinType } from './ingredients.js';
 
 export default function Passport({ passport, setPassport, setSelfie, onScan }) {
   const [mode, setMode] = useState(passport ? 'result' : 'intro');
@@ -68,6 +69,8 @@ export default function Passport({ passport, setPassport, setSelfie, onScan }) {
   }
 
   const ranked = rankConcerns(passport.scores);
+  const guide = recommendFor(passport);
+  const types = skinType(passport);
   return (
     <div className="screen">
       <div className="passport-head">
@@ -81,7 +84,10 @@ export default function Passport({ passport, setPassport, setSelfie, onScan }) {
           </div>
         )}
       </div>
-      {passport.skinAge != null && <p className="muted">Estimated skin age <b>{passport.skinAge}</b></p>}
+      <ul className="type-chips">
+        {types.map((t) => <li key={t}>{t}</li>)}
+        {passport.skinAge != null && <li className="age">Skin age {passport.skinAge}</li>}
+      </ul>
       {passport.simulated && (
         <p className="note-banner">
           <b>Demo scores.</b> YouCam credits are used up, so these scores are simulated. Add credits for a real analysis.
@@ -103,6 +109,23 @@ export default function Passport({ passport, setPassport, setSelfie, onScan }) {
         })}
       </ul>
       <p className="fineprint">Higher is healthier. Scores come from YouCam AI Skin Analysis.</p>
+
+      <div className="guide">
+        <h2 className="sub-title">Your ingredient guide</h2>
+        <p className="muted small">Picked for the focus areas in your scan. Look for these on labels.</p>
+        <div className="guide-cols">
+          <div className="guide-col good">
+            <p className="guide-head">Look for</p>
+            <ul>{guide.look.map((g) => <li key={g.name}><b>{g.name}</b><span>{g.why}</span></li>)}</ul>
+          </div>
+          {guide.avoid.length > 0 && (
+            <div className="guide-col bad">
+              <p className="guide-head">Go easy on</p>
+              <ul>{guide.avoid.map((g) => <li key={g.name}><b>{g.name}</b><span>{g.risk}</span></li>)}</ul>
+            </div>
+          )}
+        </div>
+      </div>
 
       {error && <p className="error">{error}</p>}
       <div className="stack">

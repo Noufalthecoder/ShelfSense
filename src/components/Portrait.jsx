@@ -47,8 +47,8 @@ export default function Portrait() {
           <stop offset="100%" stopColor="#e9dccf" />
         </radialGradient>
         <linearGradient id="sweep" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#c24e5c" stopOpacity="0" />
-          <stop offset="100%" stopColor="#c24e5c" stopOpacity=".14" />
+          <stop offset="0%" stopColor="#cf6b7b" stopOpacity="0" />
+          <stop offset="100%" stopColor="#cf6b7b" stopOpacity=".14" />
         </linearGradient>
         <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="6" />
@@ -113,7 +113,7 @@ export default function Portrait() {
       <g clipPath="url(#haloClip)">
         <g className="sweep">
           <rect x="0" y="-70" width="470" height="70" fill="url(#sweep)" />
-          <line x1="0" x2="470" y1="0" y2="0" stroke="#c24e5c" strokeWidth="1.2" />
+          <line x1="0" x2="470" y1="0" y2="0" stroke="#cf6b7b" strokeWidth="1.2" />
         </g>
       </g>
 
@@ -121,13 +121,13 @@ export default function Portrait() {
         const w = tagWidth(r.label);
         return (
           <g key={r.label} className="reading" style={{ animationDelay: `${2.2 + i * .22}s` }}>
-            <polyline points={`${r.x},${r.y} ${r.x + 36},${r.ty} 318,${r.ty}`} fill="none" stroke="#c24e5c" strokeWidth="1" strokeOpacity=".7" />
+            <polyline points={`${r.x},${r.y} ${r.x + 36},${r.ty} 318,${r.ty}`} fill="none" stroke="#cf6b7b" strokeWidth="1" strokeOpacity=".7" />
             <circle cx={r.x} cy={r.y} r="10" fill="#fff" fillOpacity=".5" stroke="#fff" strokeWidth="1" />
-            <circle cx={r.x} cy={r.y} r="4" fill="#c24e5c" />
+            <circle cx={r.x} cy={r.y} r="4" fill="#cf6b7b" />
             <g filter="url(#tagShadow)">
               <rect x="318" y={r.ty - 15} width={w} height="30" rx="15" fill="#fff" />
             </g>
-            <circle cx="333" cy={r.ty} r="3.5" fill="#c24e5c" />
+            <circle cx="333" cy={r.ty} r="3.5" fill="#cf6b7b" />
             <text x="343" y={r.ty + 4.5}>{r.label}</text>
           </g>
         );

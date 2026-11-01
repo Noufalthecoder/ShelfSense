@@ -122,3 +122,54 @@ export function evaluate(product, passport) {
 
   return { score, verdict, reasons: reasons.slice(0, 4), matched, targets: [...targets] };
 }
+
+// ---------- helpers for the ingredient guide, chips and routine ----------
+
+const weigh = (map, sev, floor) => Object.entries(map ?? {}).reduce((s, [c, w]) => s + w * (floor + (1 - floor) * sev(c)), 0);
+
+/** What one ingredient (as written on a label) does for this skin, or null if no rule knows it. */
+export function ingredientInsight(raw, passport) {
+  const text = raw.toLowerCase();
+  const rule = RULES.find((r) => r.re.test(text));
+  if (!rule) return null;
+  const sev = (c) => severity(passport?.scores?.[c]);
+  const good = weigh(rule.helps, sev, .3);
+  const bad = weigh(rule.hurts, sev, .2);
+  return {
+    name: rule.name,
+    tone: good >= bad ? 'good' : 'bad',
+    helps: Object.keys(rule.helps ?? {}).map((c) => HELP_PHRASE[c]),
+    hurts: Object.keys(rule.hurts ?? {}).map((c) => CONCERNS[c].toLowerCase()),
+    note: rule.note,
+  };
+}
+
+/** Ingredients to look for and to go easy on, ranked for this skin. */
+export function recommendFor(passport, n = 4) {
+  const sev = (c) => severity(passport?.scores?.[c]);
+  const top = (map) => Object.entries(map ?? {}).sort((a, b) => b[1] * sev(b[0]) - a[1] * sev(a[0]))[0];
+  const scored = RULES.map((r) => {
+    const good = weigh(r.helps, sev, 0);
+    const bad = weigh(r.hurts, sev, 0);
+    const h = top(r.helps);
+    const w = top(r.hurts);
+    return { name: r.name, good, bad, why: h && HELP_PHRASE[h[0]], risk: w && (r.note ?? `may aggravate ${CONCERNS[w[0]].toLowerCase()}`) };
+  });
+  return {
+    look: scored.filter((s) => s.good - s.bad > .2).sort((a, b) => (b.good - b.bad) - (a.good - a.bad)).slice(0, n),
+    avoid: scored.filter((s) => s.bad > .25 && s.bad > s.good).sort((a, b) => b.bad - a.bad).slice(0, n),
+  };
+}
+
+/** A friendly skin-type summary from the scan. */
+export function skinType(passport) {
+  const sev = (c) => severity(passport?.scores?.[c]);
+  const oily = sev('oiliness') > .35;
+  const dry = sev('moisture') > .35;
+  const base = oily && dry ? 'Combination' : oily ? 'Oily' : dry ? 'Dry' : 'Balanced';
+  const tags = [base];
+  if (sev('redness') > .35) tags.push('Sensitive');
+  if (sev('acne') > .35) tags.push('Breakout-prone');
+  if (sev('wrinkle') > .4 || sev('texture') > .4) tags.push('Renewal focus');
+  return tags;
+}

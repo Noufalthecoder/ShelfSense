@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { evaluate, VERDICTS } from './ingredients.js';
+import { useEffect, useMemo, useState } from 'react';
+import { evaluate, ingredientInsight, VERDICTS } from './ingredients.js';
 import { vtoEffects } from './catalog.js';
 import { tryOn } from './api.js';
 
@@ -64,10 +64,81 @@ function TryOn({ selfie, effects, shade, onNeedPassport }) {
   );
 }
 
+// the label, ingredient by ingredient; known ones are coloured for this skin and explain themselves on tap
+function IngredientChips({ text, passport, source }) {
+  const [pick, setPick] = useState(null);
+  const list = useMemo(() => (text || '').split(/,(?![^(]*\))/).map((x) => x.trim()).filter(Boolean)
+    .map((raw) => ({ raw, info: ingredientInsight(raw, passport) })), [text, passport]);
+  if (!list.length) return null;
+  const known = list.filter((x) => x.info).length;
+  const sel = pick != null ? list[pick] : null;
+  return (
+    <div className="ing">
+      <div className="section-row">
+        <h3 className="sub-title sm">Ingredients, read for you</h3>
+        <span className="small muted">{known} of {list.length} explained</span>
+      </div>
+      <ul className="ing-chips">
+        {list.map((x, i) => (
+          <li key={`${x.raw}-${i}`}>
+            <button
+              className={`${x.info ? x.info.tone : 'plain'} ${pick === i ? 'on' : ''}`}
+              disabled={!x.info}
+              onClick={() => setPick(pick === i ? null : i)}
+            >{x.raw}</button>
+          </li>
+        ))}
+      </ul>
+      {sel && (
+        <div className={`ing-info ${sel.info.tone}`} key={pick}>
+          <b>{sel.info.name}</b>
+          {sel.info.helps.length > 0 && <span>Helps: {sel.info.helps.join(', ')}.</span>}
+          {sel.info.hurts.length > 0 && <span>Watch out: {sel.info.note ?? `may aggravate ${sel.info.hurts.join(', ')}`}.</span>}
+        </div>
+      )}
+      {source && <p className="fineprint">Source: {source}</p>}
+    </div>
+  );
+}
+
+const SPEAK = <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z" /><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" /></svg>;
+const STOP = <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>;
+const SHARE = <svg viewBox="0 0 24 24"><path d="M12 15V3M7.5 7.5 12 3l4.5 4.5" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" /></svg>;
+
 export default function VerdictSheet({ product, passport, selfie, inBag, hasTrial, onAddToBag, onStartTrial, onNeedPassport, onClose }) {
   const r = useMemo(() => evaluate(product, passport), [product, passport]);
   const v = VERDICTS[r.verdict];
   const effects = vtoEffects(product);
+  const [speaking, setSpeaking] = useState(false);
+  const [shared, setShared] = useState('');
+  const canSpeak = typeof speechSynthesis !== 'undefined';
+
+  useEffect(() => () => { if (canSpeak) speechSynthesis.cancel(); }, [canSpeak]);
+
+  const summary = `${product.name}: ${v.label}${r.score != null ? `, ${r.score} out of 100` : ''}. ${r.reasons.map((x) => x.text).join('. ')}.`;
+
+  const speak = () => {
+    if (speaking) { speechSynthesis.cancel(); setSpeaking(false); return; }
+    const u = new SpeechSynthesisUtterance(summary);
+    u.rate = 1;
+    u.onend = u.onerror = () => setSpeaking(false);
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+    setSpeaking(true);
+  };
+
+  const share = async () => {
+    const text = `ShelfSense says: ${summary}`;
+    try {
+      if (navigator.share) { await navigator.share({ title: 'ShelfSense verdict', text, url: location.origin }); return; }
+      await navigator.clipboard.writeText(`${text} ${location.origin}`);
+      setShared('Copied');
+    } catch {
+      setShared('');
+      return;
+    }
+    setTimeout(() => setShared(''), 1800);
+  };
 
   return (
     <div className="sheet-backdrop" onClick={onClose}>
@@ -77,7 +148,7 @@ export default function VerdictSheet({ product, passport, selfie, inBag, hasTria
         <div className="sheet-product">
           {product.image
             ? <img src={product.image} alt="" />
-            : <span className="swatch lg" style={{ background: product.color ?? '#e6ded5' }} />}
+            : <span className="swatch lg" style={{ background: product.color ?? '#eee6de' }} />}
           <div>
             <p className="small muted">{product.brand}{product.demo ? ' · Demo' : ''}</p>
             <h2 className="sheet-title">{product.name}</h2>
@@ -87,6 +158,11 @@ export default function VerdictSheet({ product, passport, selfie, inBag, hasTria
         <div className={`verdict-row ${v.tone}`}>
           <span className="v-badge"><i />{v.label}</span>
           {r.score != null && <span className="v-score">{r.score}<small> / 100</small></span>}
+        </div>
+
+        <div className="quick-actions">
+          {canSpeak && <button className={speaking ? 'on' : ''} onClick={speak}>{speaking ? STOP : SPEAK}{speaking ? 'Stop' : 'Read aloud'}</button>}
+          <button onClick={share}>{SHARE}{shared || 'Share'}</button>
         </div>
 
         {!passport && (
@@ -101,11 +177,9 @@ export default function VerdictSheet({ product, passport, selfie, inBag, hasTria
 
         {effects && <TryOn selfie={selfie} effects={effects} shade={product.shade} onNeedPassport={onNeedPassport} />}
 
-        <details className="ingredients">
-          <summary>Full ingredient list</summary>
-          <p>{product.ingredients || 'Not available.'}</p>
-          <p className="small muted">Source: {product.source}</p>
-        </details>
+        {product.ingredients
+          ? <IngredientChips text={product.ingredients} passport={passport} source={product.source} />
+          : <p className="small muted">No ingredient list available. Source: {product.source}</p>}
 
         <div className="sheet-actions">
           <button className="btn" onClick={onAddToBag} disabled={inBag}>{inBag ? 'In your bag' : 'Add to bag'}</button>

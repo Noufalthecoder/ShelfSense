@@ -4,6 +4,7 @@ import Logo from '../components/Logo.jsx';
 import Passport from './Passport.jsx';
 import Scanner from './Scanner.jsx';
 import Trials, { newTrial } from './Trials.jsx';
+import Routine from './Routine.jsx';
 import VerdictSheet from './VerdictSheet.jsx';
 import DemoCodes from './DemoCodes.jsx';
 import { evaluate, VERDICTS } from './ingredients.js';
@@ -13,6 +14,7 @@ import './app.css';
 const TABS = [
   ['passport', 'Skin', <svg key="i" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" /><path d="M5 20c1.2-3.5 3.8-5 7-5s5.8 1.5 7 5" /></svg>],
   ['scan', 'Scan', <svg key="i" viewBox="0 0 24 24"><path d="M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3M8 8v8M11 8v8M13 8v8M16 8v8" /></svg>],
+  ['routine', 'Routine', <svg key="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2" /><path d="M6 18c3 0 4-2 6-2s3 2 6 2" /></svg>],
   ['trials', 'Trials', <svg key="i" viewBox="0 0 24 24"><path d="M4 4v16h16" /><path d="M7 14l4-4 3 3 5-6" /></svg>],
 ];
 
@@ -25,6 +27,7 @@ export default function ShelfApp() {
   const [selfie, setSelfie] = useStored('ss.selfie', null);
   const [trials, setTrials] = useStored('ss.trials', []);
   const [bag, setBag] = useStored('ss.bag', []);
+  const [history, setHistory] = useStored('ss.history', []);
   const [open, setOpen] = useState(null);
   const [codes, setCodes] = useState(false);
   const [bagOpen, setBagOpen] = useState(false);
@@ -38,7 +41,14 @@ export default function ShelfApp() {
   const go = (t) => {
     setTab(t);
     setOpen(null);
-    history.replaceState(null, '', `#${t}`);
+    window.history.replaceState(null, '', `#${t}`);
+  };
+
+  // every product the shopper opens is remembered, newest first
+  const openProduct = (p) => {
+    setOpen(p);
+    const { code, name, brand, kind, color, shade, ingredients, image, source, demo: isDemo } = p;
+    setHistory((h) => [{ product: { code, name, brand, kind, color, shade, ingredients, image, source, demo: isDemo }, at: Date.now() }, ...h.filter((x) => x.product.code !== code)].slice(0, 20));
   };
 
   const addToBag = (p) => setBag((b) => (b.some((x) => x.code === p.code)
@@ -64,7 +74,8 @@ export default function ShelfApp() {
 
       <main className={`ss-main ${tab === 'scan' ? 'full' : ''}`}>
         {tab === 'passport' && <Passport passport={passport} setPassport={setPassport} setSelfie={setSelfie} onScan={() => go('scan')} />}
-        {tab === 'scan' && <Scanner passport={passport} onOpen={setOpen} onAddToBag={addToBag} onNeedPassport={() => go('passport')} onShowCodes={() => setCodes(true)} />}
+        {tab === 'scan' && <Scanner passport={passport} onOpen={openProduct} onAddToBag={addToBag} onNeedPassport={() => go('passport')} onShowCodes={() => setCodes(true)} />}
+        {tab === 'routine' && <Routine bag={bag} setBag={setBag} passport={passport} history={history} setHistory={setHistory} onOpen={openProduct} onScan={() => go('scan')} />}
         {tab === 'trials' && <Trials trials={trials} setTrials={setTrials} onScan={() => go('scan')} />}
       </main>
 
@@ -103,13 +114,16 @@ export default function ShelfApp() {
                 const v = VERDICTS[evaluate(item, passport).verdict];
                 return (
                   <li key={item.code}>
-                    <span className="swatch" style={{ background: item.color ?? '#e6ded5' }} />
+                    <span className="swatch" style={{ background: item.color ?? '#eee6de' }} />
                     <span className="bag-name">{item.name}<small className={v.tone}>{v.label}</small></span>
                     <button className="link-btn small" onClick={() => setBag((b) => b.filter((x) => x.code !== item.code))}>Remove</button>
                   </li>
                 );
               })}
             </ul>
+            {bag.length > 0 && (
+              <button className="btn btn-light btn-block" onClick={() => { setBagOpen(false); go('routine'); }}>Build my routine</button>
+            )}
             {bag.length > 0 && <p className="fineprint">Prototype bag: checkout would hand off to the retailer.</p>}
           </div>
         </div>

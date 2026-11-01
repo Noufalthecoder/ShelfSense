@@ -75,7 +75,7 @@ function pillTexture(text) {
     g.beginPath();
     g.arc(72, 68, 28, 0, Math.PI * 2);
     g.fill();
-    g.fillStyle = '#2e8b57';
+    g.fillStyle = '#3f9a6c';
     g.font = '600 32px Inter';
     g.textAlign = 'center';
     g.fillText('✓', 72, 80);
@@ -171,8 +171,8 @@ export default function Bottle({ progress, active }) {
 
     // the scan: a thin ring with a faint plane of light, swept down the bottle
     const scan = new THREE.Group();
-    const scanMat = new THREE.MeshBasicMaterial({ color: '#c24e5c', transparent: true });
-    const scanPlaneMat = new THREE.MeshBasicMaterial({ color: '#c24e5c', transparent: true, side: THREE.DoubleSide, depthWrite: false });
+    const scanMat = new THREE.MeshBasicMaterial({ color: '#cf6b7b', transparent: true });
+    const scanPlaneMat = new THREE.MeshBasicMaterial({ color: '#cf6b7b', transparent: true, side: THREE.DoubleSide, depthWrite: false });
     const ring = new THREE.Mesh(new THREE.TorusGeometry(.82, .007, 8, 160), scanMat);
     const plane = new THREE.Mesh(new THREE.CircleGeometry(.82, 96), scanPlaneMat);
     ring.rotation.x = plane.rotation.x = Math.PI / 2;
@@ -180,7 +180,7 @@ export default function Bottle({ progress, active }) {
     scene.add(scan);
 
     // verified ring at the base once the verdict lands
-    const baseMat = new THREE.MeshBasicMaterial({ color: '#2e8b57', transparent: true, opacity: 0 });
+    const baseMat = new THREE.MeshBasicMaterial({ color: '#3f9a6c', transparent: true, opacity: 0 });
     const base = new THREE.Mesh(new THREE.TorusGeometry(.9, .008, 8, 160), baseMat);
     base.rotation.x = Math.PI / 2;
     base.position.y = -1.34;
@@ -209,7 +209,7 @@ export default function Bottle({ progress, active }) {
     }
     const dustGeo = new THREE.BufferGeometry();
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-    const dustMat = new THREE.PointsMaterial({ map: dot, color: '#c24e5c', size: .045, transparent: true, opacity: .5, depthWrite: false, toneMapped: false });
+    const dustMat = new THREE.PointsMaterial({ map: dot, color: '#cf6b7b', size: .045, transparent: true, opacity: .5, depthWrite: false, toneMapped: false });
     const dust = new THREE.Points(dustGeo, dustMat);
     scene.add(dust);
 

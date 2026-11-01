@@ -5,7 +5,7 @@ import { CONCERNS } from './concerns.js';
 import { DEMO_PRODUCTS } from './catalog.js';
 
 const DAY = 864e5;
-const LINE_COLORS = ['#2e8b57', '#c24e5c', '#c98a1b'];
+const LINE_COLORS = ['#3f9a6c', '#cf6b7b', '#c99a3e'];
 
 export function newTrial(product, targets, passport) {
   return {
@@ -90,7 +90,7 @@ function TrialCard({ trial, onCheckIn, onRemove }) {
   return (
     <article className="trial">
       <header className="trial-head">
-        <span className="swatch" style={{ background: trial.product.color ?? '#e6ded5' }} />
+        <span className="swatch" style={{ background: trial.product.color ?? '#eee6de' }} />
         <div>
           <h3>{trial.product.name}</h3>
           <p className="small muted">{trial.example ? 'Example trial · sample data' : `Day ${day} of 30 · ${trial.checkins.length - 1} check-ins`}</p>

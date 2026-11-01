@@ -11,7 +11,7 @@ const PRODUCTS = [
   { name: 'Rose Toner', kind: 'Alcohol denat. · Parfum', verdict: 'Skip it', tone: 'bad', score: 32, why: 'Fragrance and drying alcohol, both flagged for your skin.' },
   { name: 'Velvet Lip 05', kind: 'Warm brick red', verdict: 'Shade match', tone: 'good', score: 91, why: 'Made for your warm undertone. See it on your face in one tap.' },
 ];
-const TONE = { good: '#5cc58a', warn: '#e8a94f', bad: '#ec6a7a' };
+const TONE = { good: '#3f9a6c', warn: '#c99a3e', bad: '#cf5b6c' };
 const TONE_COL = Object.fromEntries(Object.entries(TONE).map(([k, c]) => [k, new THREE.Color(c)]));
 const XS = [-3.5, -1.75, 0, 1.75, 3.5];
 
@@ -188,7 +188,7 @@ export default function Shelf3D() {
     const stage = stageRef.current;
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     } catch {
       return;
     }
@@ -197,21 +197,18 @@ export default function Shelf3D() {
     renderer.toneMappingExposure = 1.05;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    const BG = '#15110f';
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(BG);
-    scene.fog = new THREE.Fog(BG, 13, 24);
     const pmrem = new THREE.PMREMGenerator(renderer);
     const env = pmrem.fromScene(new RoomEnvironment(renderer), .04).texture;
     scene.environment = env;
 
     const camera = new THREE.PerspectiveCamera(30, 1, .1, 60);
-    const key = new THREE.SpotLight('#ffe6d2', 60, 30, .55, .6, 1.6);
+    const key = new THREE.SpotLight('#fff1e6', 45, 30, .6, .7, 1.6);
     key.position.set(2, 8, 6);
     scene.add(key, key.target);
-    const rim = new THREE.DirectionalLight('#e3836f', 2.4);
+    const rim = new THREE.DirectionalLight('#f3b2a6', 1.6);
     rim.position.set(-3, 4, -6);
-    scene.add(rim, new THREE.AmbientLight('#ffffff', .15));
+    scene.add(rim, new THREE.AmbientLight('#fff6f0', .5));
 
     // shared materials
     const mats = [];
@@ -221,20 +218,18 @@ export default function Shelf3D() {
     mats.push(mats.gold, mats.ink, mats.white);
 
     // the shelf, with a glowing smart edge
-    const wood = new THREE.MeshPhysicalMaterial({ color: '#2d231e', roughness: .55, clearcoat: .35, clearcoatRoughness: .4 });
+    const wood = new THREE.MeshPhysicalMaterial({ color: '#f3e7de', roughness: .5, clearcoat: .6, clearcoatRoughness: .25 });
     const shelf = new THREE.Mesh(new THREE.BoxGeometry(10.2, .2, 2.4), wood);
     shelf.position.y = -.1;
-    const edgeMat = new THREE.MeshBasicMaterial({ color: '#c24e5c', toneMapped: false });
+    const edgeMat = new THREE.MeshBasicMaterial({ color: '#cf6b7b', toneMapped: false, transparent: true, opacity: .7 });
     const edge = new THREE.Mesh(new THREE.BoxGeometry(10.2, .03, .02), edgeMat);
     edge.position.set(0, -.07, 1.21);
-    const wall = new THREE.Mesh(new THREE.PlaneGeometry(40, 20), new THREE.MeshStandardMaterial({ color: '#1d1714', roughness: 1 }));
-    wall.position.set(0, 4, -2.2);
-    scene.add(shelf, edge, wall);
-    mats.push(wood, edgeMat, wall.material);
+    scene.add(shelf, edge);
+    mats.push(wood, edgeMat);
 
     // glow behind the product being read
     const dot = softDot();
-    const glowMat = new THREE.MeshBasicMaterial({ map: dot, color: TONE.good, transparent: true, opacity: .32, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+    const glowMat = new THREE.MeshBasicMaterial({ map: dot, color: TONE.good, transparent: true, opacity: .22, depthWrite: false, toneMapped: false });
     const glow = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 4.6), glowMat);
     glow.position.set(XS[0], 1.2, -2.1);
     scene.add(glow);
@@ -242,7 +237,7 @@ export default function Shelf3D() {
 
     // products
     const sTex = shadowTex();
-    const shadowMat = new THREE.MeshBasicMaterial({ map: sTex, transparent: true, depthWrite: false, opacity: .8 });
+    const shadowMat = new THREE.MeshBasicMaterial({ map: sTex, color: '#7a5545', transparent: true, depthWrite: false, opacity: .5 });
     mats.push(shadowMat);
     const items = [serum, jar, tube, pump, lipstick].map((build, i) => {
       const root = new THREE.Group();
@@ -262,7 +257,7 @@ export default function Shelf3D() {
 
     // the scan: a ring and a faint disc of light, swept down the active product
     const scanMat = new THREE.MeshBasicMaterial({ color: TONE.good, transparent: true, toneMapped: false });
-    const discMat = new THREE.MeshBasicMaterial({ color: TONE.good, transparent: true, opacity: .1, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });
+    const discMat = new THREE.MeshBasicMaterial({ color: TONE.good, transparent: true, opacity: .1, side: THREE.DoubleSide, depthWrite: false, toneMapped: false });
     const scan = new THREE.Group();
     const ring = new THREE.Mesh(new THREE.TorusGeometry(.95, .012, 8, 160), scanMat);
     const disc = new THREE.Mesh(new THREE.CircleGeometry(.95, 96), discMat);
@@ -283,7 +278,7 @@ export default function Shelf3D() {
     }
     const dustGeo = new THREE.BufferGeometry();
     dustGeo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
-    const dustMat = new THREE.PointsMaterial({ map: dot, color: '#f2b48e', size: .06, transparent: true, opacity: .55, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });
+    const dustMat = new THREE.PointsMaterial({ map: dot, color: '#e39a8f', size: .05, transparent: true, opacity: .45, depthWrite: false, toneMapped: false });
     const dust = new THREE.Points(dustGeo, dustMat);
     scene.add(dust);
     mats.push(dustMat);
@@ -390,7 +385,7 @@ export default function Shelf3D() {
         it.inner.rotation.y += (spin - it.inner.rotation.y) * (on ? .06 : .03);
         const s = 1 + it.lift * .25;
         it.inner.scale.setScalar(s);
-        it.shadow.material.opacity = .85 - it.lift * 1.2;
+        it.shadow.material.opacity = .5 - it.lift * .7;
         it.shadow.scale.setScalar(1 + it.lift * .6);
       });
 
@@ -404,13 +399,13 @@ export default function Shelf3D() {
       // glow + scan sweep
       const cur = items[a];
       glow.position.x += (XS[a] - glow.position.x) * k;
-      glowMat.opacity = .28 + Math.sin(t * 2) * .05;
+      glowMat.opacity = .2 + Math.sin(t * 2) * .04;
       const top = cur.height * cur.inner.scale.x + cur.lift + .1;
       const cyc = (t * .55) % 1;
       scan.position.set(cur.root.position.x, cur.lift + THREE.MathUtils.lerp(top, .05, cyc), 0);
       const fade = Math.sin(cyc * Math.PI);
       scanMat.opacity = fade;
-      discMat.opacity = fade * .12;
+      discMat.opacity = fade * .08;
       scan.scale.setScalar(.8 + cur.inner.scale.x * .2 + (a === 2 ? .15 : 0));
 
       // dust

@@ -221,7 +221,7 @@ export default function Scanner({ passport, onOpen, onAddToBag, onNeedPassport, 
 
         {last?.status === 'found' && shelf.length < 2 && (
           <button className="last-scan" onClick={() => onOpen(last.product)}>
-            <span className="swatch" style={{ background: last.product.color ?? '#e6ded5' }} />
+            <span className="swatch" style={{ background: last.product.color ?? '#eee6de' }} />
             <span><small>Last scanned</small>{last.product.name}</span>
             <span aria-hidden="true">›</span>
           </button>

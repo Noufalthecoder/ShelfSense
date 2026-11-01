@@ -75,6 +75,11 @@ Everything below is **unedited output from the YouCam API**, called through Shel
 | 💄 | **See it on me** | For lipsticks and foundations, YouCam Makeup VTO renders the exact shade on your selfie. Hold to compare before/after. |
 | 🧪 | **Reasons, not just scores** | Every verdict explains itself: *"Coconut oil can clog pores, and your scan shows breakouts."* |
 | 📈 | **30-day proof** | Trials re-scan your skin weekly and chart the concerns the product targets. It refuses to judge before week 3, because actives need time. |
+| 🌗 | **Morning & evening routine** | Skincare in your bag becomes an ordered AM/PM routine (cleanse → tone → treat → moisturise → protect). Retinoids and acids move to the evening, vitamin C to the morning, and clashes like retinoid + AHA or benzoyl peroxide + vitamin C are flagged with what to do instead. |
+| 🧭 | **Ingredient guide** | Your Skin Passport shows your skin type (e.g. *Combination · Sensitive*) and the ingredients to look for and go easy on, ranked for your own scan. |
+| 🏷️ | **Ingredients, read for you** | Every label is split into tappable chips, coloured for your skin. Tap one to see what it helps and what to watch out for. |
+| 🔊 | **Read aloud & share** | Hear any verdict hands-free, or share it with a friend in one tap. |
+| 🕘 | **Recently scanned** | Every product you open is remembered on this device, with its score, so you can find it again. |
 | 🛍️ | **Bag** | Add to bag from any verdict or from the best pick, with each item's verdict shown. |
 | 🛟 | **Credit-aware demo mode** | When credits run low, the app keeps working with clearly labelled simulated scores, and replays any cached real result for free. |
 

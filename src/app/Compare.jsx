@@ -20,7 +20,7 @@ export default function Compare({ shelf, bestCode, onOpen, onAddToBag, onClear, 
               <li key={s.code} className={s.code === bestCode ? 'best' : ''}>
                 <button onClick={() => onOpen(s.product)}>
                   <span className="rank">{i + 1}</span>
-                  <span className="swatch" style={{ background: s.product.color ?? '#e6ded5' }} />
+                  <span className="swatch" style={{ background: s.product.color ?? '#eee6de' }} />
                   <span className="compare-body">
                     {s.code === bestCode && <span className="best-tag">★ Best pick</span>}
                     <b>{s.product.name}</b>

@@ -17,15 +17,15 @@ export default function Proof() {
       <svg className="proof-chart" viewBox="0 0 320 172" aria-label="Dark spots score falling steadily over four weeks">
         <defs>
           <linearGradient id="proofArea" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#2e8b57" stopOpacity=".18" />
-            <stop offset="100%" stopColor="#2e8b57" stopOpacity="0" />
+            <stop offset="0%" stopColor="#3f9a6c" stopOpacity=".18" />
+            <stop offset="100%" stopColor="#3f9a6c" stopOpacity="0" />
           </linearGradient>
         </defs>
-        {[37, 84, 131].map((y) => <line key={y} x1="20" x2="300" y1={y} y2={y} stroke="#e6ded5" strokeDasharray="3 4" />)}
+        {[37, 84, 131].map((y) => <line key={y} x1="20" x2="300" y1={y} y2={y} stroke="#eee6de" strokeDasharray="3 4" />)}
         <path className="proof-area" d={`${LINE} L300 150 L20 150 Z`} fill="url(#proofArea)" />
-        <path className="proof-line" d={LINE} pathLength="1" fill="none" stroke="#2e8b57" strokeWidth="2.5" strokeLinecap="round" />
+        <path className="proof-line" d={LINE} pathLength="1" fill="none" stroke="#3f9a6c" strokeWidth="2.5" strokeLinecap="round" />
         {POINTS.map(([x, y], i) => (
-          <circle key={x} className="proof-dot" cx={x} cy={y} r={i === POINTS.length - 1 ? 5 : 3.5} fill="#fff" stroke="#2e8b57" strokeWidth="2" style={{ transitionDelay: `${.3 + i * .25}s` }} />
+          <circle key={x} className="proof-dot" cx={x} cy={y} r={i === POINTS.length - 1 ? 5 : 3.5} fill="#fff" stroke="#3f9a6c" strokeWidth="2" style={{ transitionDelay: `${.3 + i * .25}s` }} />
         ))}
         {WEEKS.map((w, i) => <text key={w} x={POINTS[i][0]} y="168" textAnchor="middle">{w}</text>)}
       </svg>
