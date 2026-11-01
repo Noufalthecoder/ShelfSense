@@ -14,6 +14,13 @@
   <img src="https://img.shields.io/badge/ZXing-barcode-555?style=flat-square" alt="ZXing">
 </p>
 
+<p align="center">
+  <a href="https://shelfsense-165w.onrender.com"><img src="https://img.shields.io/badge/%E2%96%B6%20Try%20it%20live-shelfsense--165w.onrender.com-cf6b7b?style=for-the-badge" alt="Try ShelfSense live"></a>
+  &nbsp;
+  <a href="https://shelfsense-165w.onrender.com/app"><img src="https://img.shields.io/badge/Open%20the%20app-%2Fapp-2d2723?style=for-the-badge" alt="Open the ShelfSense app"></a>
+</p>
+<p align="center"><sub>Free hosting: the first visit after a quiet spell can take up to a minute to wake up. Open <code>/app</code> on a phone to use the camera.</sub></p>
+
 <h3 align="center">One selfie. Any product. Any shelf. <i>Know if it suits your skin, before you buy it.</i></h3>
 
 <p align="center">
