@@ -1,0 +1,16 @@
+# One-click deploy on Render (render.com → New → Blueprint → pick this repo).
+services:
+  - type: web
+    name: shelfsense
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/status
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: YOUCAM_API_KEY
+        sync: false # paste your key in the Render dashboard; it never goes in git
+      - key: PAID_LIMIT_PER_HOUR
+        value: "8"

@@ -196,6 +196,15 @@ echo "YOUCAM_API_KEY=sk-..." > .env.local
 npm run dev            # http://localhost:5173  ·  app at /app
 ```
 
+**Production build (one Node process serves the site and the API):**
+
+```bash
+npm run build
+npm start              # http://localhost:3000
+```
+
+**Deploy:** the repo includes a [`render.yaml`](render.yaml) blueprint. On [Render](https://render.com), choose **New → Blueprint**, pick this repo, and paste your `YOUCAM_API_KEY` when asked. Paid YouCam routes are rate-limited per visitor (`PAID_LIMIT_PER_HOUR`, default 8), and without a key the app runs in labelled demo mode.
+
 **On a phone (camera needs HTTPS):**
 
 ```bash
