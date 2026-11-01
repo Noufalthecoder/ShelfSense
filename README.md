@@ -173,7 +173,7 @@ flowchart LR
 | Layer | Stack |
 |---|---|
 | Frontend | React 18, Vite 6, plain CSS with design tokens |
-| 3D | Three.js (procedural glass bottle, scroll-driven scan) |
+| 3D | Three.js (procedural glass bottle with orbiting ingredient tags, interactive 3D shelf with a live AR lens) |
 | AR | `getUserMedia`, `BarcodeDetector`, `@zxing/browser` |
 | Backend | Node 24 middleware inside the Vite dev/preview server |
 | AI | **YouCam AI Skin Analysis**, **YouCam Makeup VTO** |
@@ -213,7 +213,7 @@ server/
   api.js             /api routes, cache, credit-aware demo mode, product lookup
 src/
   App.jsx            landing page
-  components/        landing sections, 3D bottle, illustrated portrait, logo
+  components/        landing sections, 3D bottle, 3D shelf lens, illustrated portrait, logo
   app/
     ShelfApp.jsx     the app shell (/app)
     Passport.jsx     Skin Passport

@@ -53,6 +53,58 @@ function shadowTexture() {
   return new THREE.CanvasTexture(c);
 }
 
+// a pill-shaped ingredient tag drawn to a canvas, for a sprite that orbits the bottle
+function pillTexture(text) {
+  const c = document.createElement('canvas');
+  c.width = 640;
+  c.height = 144;
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const draw = () => {
+    const g = c.getContext('2d');
+    g.clearRect(0, 0, c.width, c.height);
+    g.shadowColor = 'rgba(60, 40, 30, .18)';
+    g.shadowBlur = 16;
+    g.shadowOffsetY = 4;
+    g.fillStyle = '#ffffff';
+    g.beginPath();
+    g.roundRect(12, 12, 616, 112, 56);
+    g.fill();
+    g.shadowColor = 'transparent';
+    g.fillStyle = '#e3f1e8';
+    g.beginPath();
+    g.arc(72, 68, 28, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = '#2e8b57';
+    g.font = '600 32px Inter';
+    g.textAlign = 'center';
+    g.fillText('✓', 72, 80);
+    g.fillStyle = '#1a1714';
+    g.font = '500 46px Inter';
+    g.textAlign = 'left';
+    g.fillText(text, 122, 84);
+    tex.needsUpdate = true;
+  };
+  draw();
+  document.fonts.ready.then(draw);
+  return tex;
+}
+
+function dotTexture() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(.4, 'rgba(255,255,255,.8)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+}
+
+const TAGS = [['Niacinamide', .75], ['Zinc PCA', .25], ['Panthenol', -.25], ['Fragrance-free', -.75]];
+
 function buildBottle() {
   const bottle = new THREE.Group();
 
@@ -134,6 +186,33 @@ export default function Bottle({ progress, active }) {
     base.position.y = -1.34;
     scene.add(base);
 
+    // ingredient tags orbit the bottle once the scan line has read them
+    const tags = TAGS.map(([text, y], i) => {
+      const mat = new THREE.SpriteMaterial({ map: pillTexture(text), transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(.98, .22, 1);
+      sprite.position.y = y;
+      scene.add(sprite);
+      return { sprite, mat, y, angle: i * Math.PI / 2, at: (1.05 - y) / 2.25 };
+    });
+
+    // fine rose-gold dust drifting around the bottle
+    const dot = dotTexture();
+    const N = 180;
+    const dustPos = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) {
+      const r = 1.1 + Math.random() * 1.4;
+      const a = Math.random() * Math.PI * 2;
+      dustPos[i * 3] = Math.cos(a) * r;
+      dustPos[i * 3 + 1] = Math.random() * 3.2 - 1.5;
+      dustPos[i * 3 + 2] = Math.sin(a) * r;
+    }
+    const dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+    const dustMat = new THREE.PointsMaterial({ map: dot, color: '#c24e5c', size: .045, transparent: true, opacity: .5, depthWrite: false, toneMapped: false });
+    const dust = new THREE.Points(dustGeo, dustMat);
+    scene.add(dust);
+
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = canvas;
       if (!w || !h) return;
@@ -172,6 +251,16 @@ export default function Bottle({ progress, active }) {
 
       baseMat.opacity = clamp01((p - SCAN_END) / .08) * .9;
 
+      const out = 1 - clamp01((p - (PROOF_START - .06)) / .06);
+      tags.forEach((tg, i) => {
+        const a = tg.angle + (reduceMotion ? 0 : t * .45) + p * 2;
+        tg.sprite.position.set(Math.cos(a) * .86, tg.y + (reduceMotion ? 0 : Math.sin(t * 1.3 + i) * .04), Math.sin(a) * 1.25);
+        tg.mat.opacity = clamp01((s - tg.at) * 8) * out;
+        tg.sprite.visible = tg.mat.opacity > .01;
+      });
+      dust.rotation.y = t * .04 + p * 1.2;
+      dust.position.y = reduceMotion ? 0 : Math.sin(t * .5) * .05;
+
       renderer.render(scene, camera);
     };
     tick();
@@ -180,7 +269,8 @@ export default function Bottle({ progress, active }) {
       cancelAnimationFrame(raf);
       ro.disconnect();
       scene.traverse((o) => o.geometry?.dispose());
-      [...materials, scanMat, scanPlaneMat, baseMat, shadow.material].forEach((m) => { m.map?.dispose(); m.dispose(); });
+      dot.dispose();
+      [...materials, ...tags.map((tg) => tg.mat), dustMat, scanMat, scanPlaneMat, baseMat, shadow.material].forEach((m) => { m.map?.dispose(); m.dispose(); });
       env.dispose();
       pmrem.dispose();
       renderer.dispose();

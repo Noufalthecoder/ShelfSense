@@ -15,6 +15,7 @@ export default function Nav() {
     <header className={`nav ${scrolled ? 'scrolled' : ''}`}>
       <Logo href="#top" />
       <nav className="nav-links" aria-label="Main">
+        <a href="#lens">Try the lens</a>
         <a href="#how">How it works</a>
         <a href="#retail">For retailers</a>
       </nav>

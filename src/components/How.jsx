@@ -34,6 +34,26 @@ const STEPS = [
   ['chart', 'Track the proof', 'Start a 30-day trial. A quick weekly selfie shows whether the product is really working on your skin.'],
 ];
 
+// cards lean toward the pointer, with a soft glare that follows it
+function tilt(e) {
+  if (e.pointerType !== 'mouse') return;
+  const el = e.currentTarget;
+  const r = el.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width;
+  const y = (e.clientY - r.top) / r.height;
+  el.style.setProperty('--ry', `${(x - .5) * 14}deg`);
+  el.style.setProperty('--rx', `${(.5 - y) * 14}deg`);
+  el.style.setProperty('--gx', `${x * 100}%`);
+  el.style.setProperty('--gy', `${y * 100}%`);
+  el.classList.add('tilting');
+}
+function untilt(e) {
+  const el = e.currentTarget;
+  el.style.setProperty('--rx', '0deg');
+  el.style.setProperty('--ry', '0deg');
+  el.classList.remove('tilting');
+}
+
 export default function How() {
   return (
     <section className="section" id="how">
@@ -44,10 +64,12 @@ export default function How() {
       <ol className="how">
         {STEPS.map(([icon, title, body], i) => (
           <li key={title} className="fade" style={{ transitionDelay: `${i * .08}s` }}>
-            {ICONS[icon]}
-            <p className="n">0{i + 1}</p>
-            <h3>{title}</h3>
-            <p>{body}</p>
+            <div className="card" onPointerMove={tilt} onPointerLeave={untilt}>
+              {ICONS[icon]}
+              <p className="n">0{i + 1}</p>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </div>
           </li>
         ))}
       </ol>

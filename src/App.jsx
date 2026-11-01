@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Nav from './components/Nav.jsx';
 import Story from './components/Story.jsx';
+import Shelf3D from './components/Shelf3D.jsx';
 import How from './components/How.jsx';
 import Platform from './components/Platform.jsx';
 import Retail from './components/Retail.jsx';
@@ -27,6 +28,7 @@ export default function App() {
       <Nav />
       <main>
         <Story />
+        <Shelf3D />
         <How />
         <Platform />
         <Retail />
